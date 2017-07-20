@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app_setting>
+  <send_to>
+    <ip_address>192.168.10.110</ip_address>
+    <depth_port>34011</depth_port>
+  </send_to>
+</app_setting>

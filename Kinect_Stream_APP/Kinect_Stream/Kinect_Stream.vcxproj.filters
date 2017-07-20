@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="App.cpp">
+      <Filter>リソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="PCLManager.cpp">
+      <Filter>リソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="KinectManager.cpp">
+      <Filter>リソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Kinect_Stream.cpp">
+      <Filter>リソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="BoostUdpServer.cpp">
+      <Filter>リソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>リソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="KinectPosture.cpp">
+      <Filter>リソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="VisualizerManager.cpp">
+      <Filter>リソースファイル</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="BoostUdpServer.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="KinectManager.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="PCLManager.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="typeDef.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="KinectPosture.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="VisualizerManager.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ヘッダーファイル">
+      <UniqueIdentifier>{89ffb32b-22d8-4cd0-bcf7-8a1a42f671d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソースファイル">
+      <UniqueIdentifier>{e4096eb4-8744-4899-9be7-14e3f76475e8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Kinect_Stream.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="kinect_stream.ico" />
+  </ItemGroup>
+</Project>
