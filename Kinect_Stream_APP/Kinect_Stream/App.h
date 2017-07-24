@@ -54,6 +54,4 @@ private:
 	boost::posix_time::ptime workBeginTime;
 	boost::posix_time::time_duration workDuration;
 	boost::mutex mutex_lock;
-
-	
 };
