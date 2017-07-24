@@ -25,6 +25,9 @@
     <ClCompile Include="VisualizerManager.cpp">
       <Filter>リソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="OpticalFlow.cpp">
+      <Filter>リソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -56,6 +59,9 @@
     </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="VisualizerManager.h">
+      <Filter>ヘッダーファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="OpticalFlow.h">
       <Filter>ヘッダーファイル</Filter>
     </ClInclude>
   </ItemGroup>

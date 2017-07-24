@@ -2,6 +2,7 @@
 #include "App.h"
 #include "BoostUdpServer.h"
 #include "PCLManager.h"
+#include "OpticalFlow.h"
 
 boost::shared_ptr<boost::asio::io_service> _iosvc(new boost::asio::io_service());
 BoostUdpServer flowServer(_iosvc);
@@ -26,6 +27,7 @@ HRESULT App::init() {
 }
 
 void App::run() {
+	OpticalFlow flow;
 	PCLManager &pclManager = PCLManager::GetInstance();
 	//-----------------------------------
 	//Thread Group
@@ -63,6 +65,92 @@ void App::run() {
 
 			//Visualizer
 			visualizer.updateVisualizer(kinectRawCloud);
+
+
+			//-----------------------------------
+			//OPENCV
+			//-----------------------------------
+			//生成する画像上のインデックス
+			vector<int> indicesOnImage;
+			//ポイントクラウド上のインデックス
+			vector<int> indicesOnPointCloud;
+			//画像を生成
+			Size depthImageSize(300, 120);
+			Mat depthMat = createMatAndOrganizedPointCloud(kinectRawCloud, depthImageSize, indicesOnImage, indicesOnPointCloud);
+			for (int i = 0; i < depthMat.size().width * depthMat.size().height; i++)
+			{
+				if (!midianFilter(i, depthMat, 1)) {
+					depthMat.data[i] = 255;
+				}
+			}
+			//Flowの計算
+			UMat flowMat;
+			depthMat.copyTo(flowMat);
+
+
+			//---------- Flow計算（フレームレート早すぎると落ちるので適宜スリープ）
+			//if (workDuration.total_milliseconds() < 17)
+			//{
+			//	Sleep(17 - workDuration.total_milliseconds());
+			//}
+			flow.update(flowMat);
+			UMat drawMat;
+			cvtColor(flowMat, drawMat, CV_GRAY2BGR);
+			flow.draw(drawMat);
+
+			//データ取得（画像上のX,Y座標で取得できる）
+			vector<Point2f> flowBeginPoints = flow.getFlowBeginPoints();
+			vector<Point2f> flowEndPoints = flow.getFlowEndPoints();
+			vector<Point2f> forces;
+			if (flowBeginPoints.size() == flowEndPoints.size())
+			{
+				//強さを取得
+				for (int i = 0; i < flowBeginPoints.size(); i++)
+				{
+					Point2f force = flowEndPoints[i] - flowBeginPoints[i];
+					forces.push_back(force);
+				}
+
+				//画像上の座標から、実際のポイントクラウドの値を取得する
+				pcl::PointCloud<PointType>::Ptr flowPoints(new pcl::PointCloud<PointType>());
+				for (int i = 0; i < flowEndPoints.size(); i++)
+				{
+					Point2f fp = flowEndPoints[i];
+					Point2f f = forces[i];
+					//そもそも無効なやつ
+					int targetIndex = depthImageSize.width * fp.y + fp.x;
+					if (fp.x < 0 || fp.y < 0)
+					{
+						continue;
+					}
+
+					//あからさまにノイズっぽいやつ
+					float distance = sqrt(f.x * f.x + f.y * f.y);
+					if (distance > 15 || distance < 1)
+					{
+						continue;
+					}
+
+					//このインデックス付近で、一番有効そうな値を探す
+					for (int j = 0; j < indicesOnImage.size(); j++)
+					{
+						int indexOnImage = indicesOnImage[j];
+						if (targetIndex > indexOnImage - 2 && targetIndex < indexOnImage + 2)
+						{
+							//ポイントクラウド上の点を送信用クラウドに追加
+							PointType targetPoint = kinectRawCloud->points[indicesOnPointCloud[j]];
+							flowPoints->push_back(targetPoint);
+
+							//flowの強さを送信用クラウドに追加
+							PointType force(f.x, f.y, 0);
+							flowPoints->push_back(force);
+						}
+					}
+				}
+
+				//送信
+				threads.create_thread(boost::bind(&App::sendFlow, this, flowPoints));
+			}
 
 			threads.join_all();
 			kinectRawCloud.reset();
@@ -162,6 +250,11 @@ void App::sendPointCloud(pcl::PointCloud<PointType>::Ptr cloud) {
 	pointCloudServer.send(_iosvc, sendPCLBuf, ipAddress.data(), depthPort);
 }
 
+void App::sendFlow(pcl::PointCloud<PointType>::Ptr cloud) {
+	vector<unsigned char> sendFlowBuf = createSendBuffer(cloud);
+	flowServer.send(_iosvc, sendFlowBuf, ipAddress.data(), flowPort);
+}
+
 //--------------------------------------------------------------------------------------------
 void App::handleKey(char key) {
 	switch (key)
@@ -197,4 +290,93 @@ void App::loadAppSettings()
 	read_xml("App_Setting.xml", pt);
 	ipAddress = pt.get_optional<string>("app_setting.send_to.ip_address").get();
 	depthPort = pt.get_optional<int>("app_setting.send_to.depth_port").get();
+	flowPort = pt.get_optional<int>("app_setting.send_to.flow_port").get();
+}
+
+Mat App::createMatAndOrganizedPointCloud(pcl::PointCloud<PointType>::Ptr inputCloud, Size imageSize, vector<int> &indicesOnImage, vector<int> &indicesOnPointCloud) {
+
+	//まずDepthSpaceにPointCloudを変換して、
+	vector<DepthSpacePoint> depthData = convertPointCloudToDepthSpace(inputCloud);
+
+	//忘れずリセットして
+	indicesOnImage.clear();
+	indicesOnPointCloud.clear();
+
+	Mat outMat(imageSize.height, imageSize.width, CV_8UC1);
+	rectangle(outMat, Rect(0, 0, imageSize.width, imageSize.height), Scalar(255, 255, 255), -1);
+
+	for (int i = 0; i < depthData.size(); i += 1)
+	{
+		int x = (depthData[i].X + 50) * 0.5;
+		if (x > imageSize.width - 1 || x < 0)
+		{
+			continue;
+		}
+		int y = (depthData[i].Y + 50) * 0.5;
+		if (y > imageSize.height - 1 || y < 0)
+		{
+			continue;
+		}
+		int index = y * outMat.size().width + x;
+
+
+
+		outMat.data[index] = 0;
+
+		//画像上のインデックスと、ポイントクラウド上のインデックスを保存しとく
+		indicesOnImage.push_back(index);
+		indicesOnPointCloud.push_back(i);
+	}
+
+	return outMat;
+}
+
+bool App::midianFilter(int bufIndex, Mat &inputMat, int filterLevel) {
+	if (filterLevel <= 0)
+	{
+		return true;
+	}
+
+	if (inputMat.data[bufIndex] < 0)
+	{
+		return false;
+	}
+
+	//まずx,y座標に直し
+	int x = bufIndex % inputMat.size().width;
+	int y = bufIndex / inputMat.size().width;
+
+	//走査ピクセル周辺の深度の合計値をとる
+	int counter = 0;
+	int calcPixelCount = 0;
+
+	//その前に無効な値はスルー
+	if (
+		x <= filterLevel ||
+		x >= inputMat.size().width - filterLevel ||
+		y <= filterLevel ||
+		y >= inputMat.size().height - filterLevel
+		) {
+		return false;
+	}
+
+	for (int arX = -filterLevel; arX <= filterLevel; arX++)
+	{
+		for (int arY = -filterLevel; arY <= filterLevel; arY++)
+		{
+			int index = (y + arY) * inputMat.size().width + (x + arX);
+			if (inputMat.data[index] == 0) {
+				counter += 1;
+			}
+
+			calcPixelCount += 1;
+		}
+	}
+	//合計計算対象ピクセル数によって、走査ピクセルがノイズってない剛体かどうかチェック
+	float ratio = 0.4;
+	if (counter >= calcPixelCount * ratio)
+	{
+		return true;
+	}
+	return false;
 }

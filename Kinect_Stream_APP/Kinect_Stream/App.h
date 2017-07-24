@@ -2,6 +2,8 @@
 #include "KinectManager.h"
 #include "VisualizerManager.h"
 
+using namespace cv;
+
 class App
 {
 public:
@@ -12,6 +14,7 @@ public:
 	void run();
 
 	void sendPointCloud(pcl::PointCloud<PointType>::Ptr cloud);
+	void sendFlow(pcl::PointCloud<PointType>::Ptr cloud);
 
 	pcl::PointCloud<PointType>::Ptr convertDepthToPointCloud(vector<UINT16>& depthData);
 
@@ -37,13 +40,20 @@ private:
 	//XML
 	string ipAddress;
 	int depthPort;
+	int flowPort;
 	void loadAppSettings();
 
 	//Visualizer
 	VisualizerManager visualizer;
 
+	//OCV
+	Mat createMatAndOrganizedPointCloud(pcl::PointCloud<PointType>::Ptr inputCloud, Size imageSize, vector<int> &indicesOnImage, vector<int> &indicesOnPointCloud);
+	bool midianFilter(int bufIndex, Mat &inputMat, int filterLevel);
+
 	//Util
 	boost::posix_time::ptime workBeginTime;
 	boost::posix_time::time_duration workDuration;
 	boost::mutex mutex_lock;
+
+	
 };

@@ -18,6 +18,14 @@
 #include <algorithm>
 #include <cmath>
 
+//OpenCV
+#include "opencv2/core.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/video.hpp"
+#include "opencv2\core\ocl.hpp"
+#include "opencv2\objdetect.hpp"
+
 //Kinect
 #include <Kinect.h>
 
