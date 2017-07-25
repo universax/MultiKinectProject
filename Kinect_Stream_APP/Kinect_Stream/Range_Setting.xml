@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <sensing_range>
-  <range_width>3.0</range_width>
+  <range_width>6.0</range_width>
   <range_height>
     <min>0.1</min>
     <max>3.0</max>
