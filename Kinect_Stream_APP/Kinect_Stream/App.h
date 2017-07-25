@@ -41,6 +41,10 @@ private:
 	string ipAddress;
 	int depthPort;
 	int flowPort;
+	float rangeWidth;
+	float rangeHeight;
+	float rangeDepth;
+
 	void loadAppSettings();
 
 	//Visualizer

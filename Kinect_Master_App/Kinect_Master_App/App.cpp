@@ -152,11 +152,11 @@ void App::run() {
 			}
 
 
-			//----------ポイントクラウドの送信
-			vector<unsigned char> pointSendBuf = convertPoint(margedCloud);
-			cout << "Point Send Size: " << pointSendBuf.size() << endl;
-			sendThreads.create_thread(boost::bind(&BoostUdpServer::send, &*sendServers[0], io_service, pointSendBuf, sendIpaddress.data(), depthSendtPort, 0, 0));
-			margedCloud.reset();
+			////----------ポイントクラウドの送信
+			//vector<unsigned char> pointSendBuf = convertPoint(margedCloud);
+			//cout << "Point Send Size: " << pointSendBuf.size() << endl;
+			//sendThreads.create_thread(boost::bind(&BoostUdpServer::send, &*sendServers[0], io_service, pointSendBuf, sendIpaddress.data(), depthSendtPort, 0, 0));
+			//margedCloud.reset();
 
 
 			//----------物体の重心位置情報の送信

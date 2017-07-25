@@ -75,7 +75,7 @@ void App::run() {
 			//ポイントクラウド上のインデックス
 			vector<int> indicesOnPointCloud;
 			//画像を生成
-			Size depthImageSize(300, 120);
+			Size depthImageSize(200, 200);
 			Mat depthMat = createMatAndOrganizedPointCloud(kinectRawCloud, depthImageSize, indicesOnImage, indicesOnPointCloud);
 			for (int i = 0; i < depthMat.size().width * depthMat.size().height; i++)
 			{
@@ -286,18 +286,26 @@ void App::workEnd() {
 
 void App::loadAppSettings()
 {
-	boost::property_tree::ptree pt;
-	read_xml("App_Setting.xml", pt);
-	ipAddress = pt.get_optional<string>("app_setting.send_to.ip_address").get();
-	depthPort = pt.get_optional<int>("app_setting.send_to.depth_port").get();
-	flowPort = pt.get_optional<int>("app_setting.send_to.flow_port").get();
+	boost::property_tree::ptree ptApp;
+	read_xml("App_Setting.xml", ptApp);
+	ipAddress = ptApp.get_optional<string>("app_setting.send_to.ip_address").get();
+	depthPort = ptApp.get_optional<int>("app_setting.send_to.depth_port").get();
+	flowPort = ptApp.get_optional<int>("app_setting.send_to.flow_port").get();
+
+	boost::property_tree::ptree ptKinect;
+	read_xml("Range_Setting.xml", ptKinect);
+	rangeWidth = ptKinect.get_optional<float>("sensing_range.range_width").get();
+
+	float hMin = ptKinect.get_optional<float>("sensing_range.range_height.min").get();
+	float hMax = ptKinect.get_optional<float>("sensing_range.range_height.max").get();
+	rangeHeight = hMax - hMin;
+
+	float dMin = ptKinect.get_optional<float>("sensing_range.range_depth.min").get();
+	float dMax = ptKinect.get_optional<float>("sensing_range.range_depth.max").get();
+	rangeDepth = dMax - dMin;
 }
 
 Mat App::createMatAndOrganizedPointCloud(pcl::PointCloud<PointType>::Ptr inputCloud, Size imageSize, vector<int> &indicesOnImage, vector<int> &indicesOnPointCloud) {
-
-	//まずDepthSpaceにPointCloudを変換して、
-	vector<DepthSpacePoint> depthData = convertPointCloudToDepthSpace(inputCloud);
-
 	//忘れずリセットして
 	indicesOnImage.clear();
 	indicesOnPointCloud.clear();
@@ -305,29 +313,75 @@ Mat App::createMatAndOrganizedPointCloud(pcl::PointCloud<PointType>::Ptr inputCl
 	Mat outMat(imageSize.height, imageSize.width, CV_8UC1);
 	rectangle(outMat, Rect(0, 0, imageSize.width, imageSize.height), Scalar(255, 255, 255), -1);
 
-	for (int i = 0; i < depthData.size(); i += 1)
+	for (int i = 0; i < inputCloud->size(); i++)
 	{
-		int x = (depthData[i].X + 50) * 0.5;
+		int x = imageSize.width / 2 + (inputCloud->points[i].x / (rangeWidth)) * imageSize.width;
 		if (x > imageSize.width - 1 || x < 0)
 		{
 			continue;
 		}
-		int y = (depthData[i].Y + 50) * 0.5;
+		int y = imageSize.height - (inputCloud->points[i].y / (rangeHeight)) * imageSize.height;
+		//int y = (depthData[i].Y + 350) * 0.3;
 		if (y > imageSize.height - 1 || y < 0)
 		{
 			continue;
 		}
 		int index = y * outMat.size().width + x;
 
-
-
-		outMat.data[index] = 0;
+		int color = (inputCloud->points[i].z / rangeDepth) * 255 - 50;
+		if (color >= 255)
+		{
+			color = 255;
+		}
+		if (color < 0)
+		{
+			color = 0;
+		}
+		outMat.data[index] = color;
 
 		//画像上のインデックスと、ポイントクラウド上のインデックスを保存しとく
 		indicesOnImage.push_back(index);
 		indicesOnPointCloud.push_back(i);
 	}
 
+
+
+
+
+
+	////まずDepthSpaceにPointCloudを変換して、
+	//vector<DepthSpacePoint> depthData = convertPointCloudToDepthSpace(inputCloud);
+
+	////忘れずリセットして
+	//indicesOnImage.clear();
+	//indicesOnPointCloud.clear();
+
+	//Mat outMat(imageSize.height, imageSize.width, CV_8UC1);
+	//rectangle(outMat, Rect(0, 0, imageSize.width, imageSize.height), Scalar(255, 255, 255), -1);
+
+	//for (int i = 0; i < depthData.size(); i += 1)
+	//{
+	//	int x = imageSize.width / 2 + (depthData[i].X / (rangeWidth * 1000)) * imageSize.width;
+	//	//int x = (depthData[i].X + 200) * 0.3;
+	//	if (x > imageSize.width - 1 || x < 0)
+	//	{
+	//		continue;
+	//	}
+	//	int y = imageSize.height / 2 + (depthData[i].Y / (rangeHeight * 1000)) * imageSize.height;
+	//	//int y = (depthData[i].Y + 350) * 0.3;
+	//	if (y > imageSize.height - 1 || y < 0)
+	//	{
+	//		continue;
+	//	}
+	//	int index = y * outMat.size().width + x;
+	//	outMat.data[index] = 0;
+	//
+	//	//画像上のインデックスと、ポイントクラウド上のインデックスを保存しとく
+	//	indicesOnImage.push_back(index);
+	//	indicesOnPointCloud.push_back(i);
+	//}
+
+	//imshow("test", outMat);
 	return outMat;
 }
 
@@ -365,7 +419,7 @@ bool App::midianFilter(int bufIndex, Mat &inputMat, int filterLevel) {
 		for (int arY = -filterLevel; arY <= filterLevel; arY++)
 		{
 			int index = (y + arY) * inputMat.size().width + (x + arX);
-			if (inputMat.data[index] == 0) {
+			if (inputMat.data[index] < 255) {
 				counter += 1;
 			}
 
@@ -373,7 +427,7 @@ bool App::midianFilter(int bufIndex, Mat &inputMat, int filterLevel) {
 		}
 	}
 	//合計計算対象ピクセル数によって、走査ピクセルがノイズってない剛体かどうかチェック
-	float ratio = 0.4;
+	float ratio = 0.2;
 	if (counter >= calcPixelCount * ratio)
 	{
 		return true;

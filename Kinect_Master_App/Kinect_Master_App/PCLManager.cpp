@@ -83,7 +83,7 @@ void PCLManager::update(std::vector<pcl::PointCloud<PointType>::Ptr> &outputPoin
 	//クラスタ分割
 	//-----------------------------------
 	//ポイントクラウドをクラスタに分割
-	voxelGridFilter(0.06f, calcPoints);
+	//voxelGridFilter(0.05f, calcPoints);
 	euclideanClusterExtraction(calcPoints, eachClouds);
 	calcPoints.reset();
 
@@ -96,7 +96,7 @@ void PCLManager::update(std::vector<pcl::PointCloud<PointType>::Ptr> &outputPoin
 		centroids.push_back(center);
 	}
 
-	////分割されたクラスタに色を付けて表示
+	//分割されたクラスタに色を付けて表示
 	//pcl::PointCloud<pcl::PointXYZRGB>::Ptr clusteredColorCloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 	//vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> coloredClouds;
 	//for (int i = 0; i < eachClouds.size(); i++)
@@ -461,8 +461,8 @@ void PCLManager::euclideanClusterExtraction(pcl::PointCloud<PointType>::Ptr clou
 
 	vector<pcl::PointIndices> cluster_indices;
 	pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-	ec.setClusterTolerance(0.07); // 2cm
-	ec.setMinClusterSize(50);
+	ec.setClusterTolerance(0.02); // 2cm
+	ec.setMinClusterSize(500);
 	ec.setMaxClusterSize(25000);
 	ec.setSearchMethod(tree);
 	ec.setInputCloud(cloud);

@@ -56,7 +56,7 @@ void OpticalFlow::update(UMat &inputMat) {
 	swap(curMat, prevMat);
 
 	counter += 1;
-	if (counter > 6)
+	if (counter > 33)
 	{
 		//for (int i = 0; i < 2; i++)
 		//{
@@ -80,12 +80,13 @@ void OpticalFlow::draw(UMat &drawMat) {
 		{
 			Point2f dist = points[1][i] - points[0][i];
 			float distance = sqrt(dist.x * dist.x + dist.y * dist.y);
-			if (distance < 15 && distance > 2)
+			if (distance < 12 && distance > 2)
 			{
 				line(drawMat, points[0][i], points[1][i], Scalar(0, 0, 255));
+				circle(drawMat, points[0][i], 1, Scalar(0, 0, 255));
+				//circle(drawMat, points[1][i], 1, Scalar(0, 255, 0));
 			}
-			//circle(drawMat, points[0][i], 1, Scalar(255, 0, 0));
-			//circle(drawMat, points[1][i], 1, Scalar(0, 255, 0));
+			
 			
 		}
 	}
