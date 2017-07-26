@@ -461,8 +461,8 @@ void PCLManager::euclideanClusterExtraction(pcl::PointCloud<PointType>::Ptr clou
 
 	vector<pcl::PointIndices> cluster_indices;
 	pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-	ec.setClusterTolerance(0.02); // 2cm
-	ec.setMinClusterSize(500);
+	ec.setClusterTolerance(0.06); // 2cm
+	ec.setMinClusterSize(600);
 	ec.setMaxClusterSize(25000);
 	ec.setSearchMethod(tree);
 	ec.setInputCloud(cloud);
