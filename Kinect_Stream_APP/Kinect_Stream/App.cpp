@@ -75,7 +75,7 @@ void App::run() {
 			//ポイントクラウド上のインデックス
 			vector<int> indicesOnPointCloud;
 			//画像を生成
-			Size depthImageSize(300, 300);
+			Size depthImageSize(300, 200);
 			Mat depthMat = createMatAndOrganizedPointCloud(kinectRawCloud, depthImageSize, indicesOnImage, indicesOnPointCloud);
 			for (int i = 0; i < depthMat.size().width * depthMat.size().height; i++)
 			{
