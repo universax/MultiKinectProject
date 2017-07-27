@@ -22,7 +22,7 @@ void PCLManager::update(pcl::PointCloud<PointType>::Ptr inputPoints)
 	passThroughFilter(zeroPointCloud, "z", minDepth, maxDepth);
 
 	//ŠÔˆø‚­
-	voxelGridFilter(0.01f, zeroPointCloud);
+	voxelGridFilter(0.015f, zeroPointCloud);
 
 	//ƒmƒCƒYœ‹
 	nanRemovalFilter(zeroPointCloud);

@@ -41,6 +41,9 @@ void BoostUdpServer::recv_handler(const boost::system::error_code & error, std::
 
 		startReceive();
 	}
+	else {
+		cout << error.message() << endl;
+	}
 }
 
 void BoostUdpServer::startServer(boost::shared_ptr<boost::asio::io_service> io_service, unsigned short port)
@@ -61,6 +64,7 @@ void BoostUdpServer::startReceive()
 		startReceive();
 	}
 	else {
+		
 		_sock.async_receive_from(boost::asio::buffer(_receivedBuf), _remoteEndpoint,
 			boost::bind(
 				&BoostUdpServer::recv_handler,

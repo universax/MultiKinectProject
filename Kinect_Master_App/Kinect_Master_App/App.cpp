@@ -114,7 +114,7 @@ void App::run() {
 				deathCounter[i] += 1;
 				if (deathCounter[i] > 20)
 				{
-					cout << "-----Points Clear: [" << i << "]" << endl;
+					//cout << "-----Points Clear: [" << i << "]" << endl;
 					recieveServers[i]->clearPoints();
 					deathCounter[i] = 0;
 				}
@@ -202,8 +202,6 @@ void App::run() {
 			viewer->updatePointCloud(showCloud);
 			viewer->spinOnce();
 			
-
-
 			//送信スレッドのジョイン
 			sendThreads.join_all();
 		}

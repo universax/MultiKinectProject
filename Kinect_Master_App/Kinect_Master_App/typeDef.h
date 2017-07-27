@@ -4,7 +4,7 @@ using namespace std;
 using namespace std::chrono;
 
 //Kinect
-#define NUM_KINECT 1
+#define NUM_KINECT 4
 
 union DataConverter {
 	unsigned char data[4];
