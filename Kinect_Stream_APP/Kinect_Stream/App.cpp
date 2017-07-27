@@ -77,12 +77,12 @@ void App::run() {
 			//画像を生成
 			Size depthImageSize(420, 280);
 			Mat depthMat = createMatAndOrganizedPointCloud(kinectRawCloud, depthImageSize, indicesOnImage, indicesOnPointCloud);
-			//for (int i = 0; i < depthMat.size().width * depthMat.size().height; i++)
-			//{
-			//	if (!midianFilter(i, depthMat, 1)) {
-			//		depthMat.data[i] = 255;
-			//	}
-			//}
+			for (int i = 0; i < depthMat.size().width * depthMat.size().height; i++)
+			{
+				if (!midianFilter(i, depthMat, 1)) {
+					depthMat.data[i] = 255;
+				}
+			}
 			//Flowの計算
 			UMat flowMat;
 			depthMat.copyTo(flowMat);
@@ -427,7 +427,7 @@ bool App::midianFilter(int bufIndex, Mat &inputMat, int filterLevel) {
 		}
 	}
 	//合計計算対象ピクセル数によって、走査ピクセルがノイズってない剛体かどうかチェック
-	float ratio = 0.3;
+	float ratio = 0.2;
 	if (counter >= calcPixelCount * ratio)
 	{
 		return true;

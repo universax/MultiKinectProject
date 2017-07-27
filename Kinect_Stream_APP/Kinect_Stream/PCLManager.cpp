@@ -26,7 +26,7 @@ void PCLManager::update(pcl::PointCloud<PointType>::Ptr inputPoints)
 
 	//ƒmƒCƒYœ‹
 	nanRemovalFilter(zeroPointCloud);
-	statisticalOutlierFilter(zeroPointCloud);
+	//statisticalOutlierFilter(zeroPointCloud);
 
 	//•Û‘¶
 	*inputPoints = *zeroPointCloud;
