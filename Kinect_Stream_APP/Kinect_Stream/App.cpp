@@ -22,7 +22,7 @@ HRESULT App::init() {
 	{
 		running = true;
 	}
-	
+
 	return hr;
 }
 
@@ -33,7 +33,7 @@ void App::run() {
 	//Thread Group
 	//-----------------------------------
 	boost::thread_group threads;
-	
+
 	while (running)
 	{
 		workBegin();
@@ -57,7 +57,7 @@ void App::run() {
 			{
 				continue;
 			}
-			
+
 			//送信
 			pcl::PointCloud<PointType>::Ptr sendPCLPtr(new pcl::PointCloud<PointType>());
 			*sendPCLPtr = *kinectRawCloud;
@@ -75,14 +75,15 @@ void App::run() {
 			//ポイントクラウド上のインデックス
 			vector<int> indicesOnPointCloud;
 			//画像を生成
-			Size depthImageSize(420, 280);
+			Size depthImageSize(300, 200);
 			Mat depthMat = createMatAndOrganizedPointCloud(kinectRawCloud, depthImageSize, indicesOnImage, indicesOnPointCloud);
-			for (int i = 0; i < depthMat.size().width * depthMat.size().height; i++)
-			{
-				if (!midianFilter(i, depthMat, 1)) {
-					depthMat.data[i] = 255;
-				}
-			}
+			Mat culcFlowMat;
+			//depthMat.copyTo(culcFlowMat);
+			//for (int i = 0; i < depthMat.size().width * depthMat.size().height; i++)
+			//{
+			//	culcFlowMat.data[i] = midianFilter(i, depthMat, 1);
+			//}
+			//imshow("MFilter", culcFlowMat);
 			//Flowの計算
 			UMat flowMat;
 			depthMat.copyTo(flowMat);
@@ -240,7 +241,7 @@ vector<unsigned char> App::createSendBuffer(pcl::PointCloud<PointType>::Ptr inpu
 			buf.push_back(converter.data[j]);
 		}
 	}
-	
+
 	return buf;
 }
 
@@ -385,7 +386,7 @@ Mat App::createMatAndOrganizedPointCloud(pcl::PointCloud<PointType>::Ptr inputCl
 	return outMat;
 }
 
-bool App::midianFilter(int bufIndex, Mat &inputMat, int filterLevel) {
+bool App::midianNoiseFilter(int bufIndex, Mat &inputMat, int filterLevel) {
 	if (filterLevel <= 0)
 	{
 		return true;
@@ -414,6 +415,7 @@ bool App::midianFilter(int bufIndex, Mat &inputMat, int filterLevel) {
 		return false;
 	}
 
+	vector<int> pixels(0);
 	for (int arX = -filterLevel; arX <= filterLevel; arX++)
 	{
 		for (int arY = -filterLevel; arY <= filterLevel; arY++)
@@ -424,8 +426,15 @@ bool App::midianFilter(int bufIndex, Mat &inputMat, int filterLevel) {
 			}
 
 			calcPixelCount += 1;
+
+			pixels.push_back(inputMat.data[index]);
 		}
 	}
+	sort(pixels.begin(), pixels.end());
+	int numPixel = pixels.size();
+	int midianIndex = numPixel / 2;
+
+
 	//合計計算対象ピクセル数によって、走査ピクセルがノイズってない剛体かどうかチェック
 	float ratio = 0.2;
 	if (counter >= calcPixelCount * ratio)
@@ -433,4 +442,46 @@ bool App::midianFilter(int bufIndex, Mat &inputMat, int filterLevel) {
 		return true;
 	}
 	return false;
+}
+
+
+int App::midianFilter(int bufIndex, Mat &inputMat, int filterLevel) {
+	if (filterLevel <= 0)
+	{
+		return 255;
+	}
+
+	if (inputMat.data[bufIndex] < 0)
+	{
+		return 0;
+	}
+
+	//まずx,y座標に直し
+	int x = bufIndex % inputMat.size().width;
+	int y = bufIndex / inputMat.size().width;
+
+	//その前に無効な値はスルー
+	if (
+		x <= filterLevel ||
+		x >= inputMat.size().width - filterLevel ||
+		y <= filterLevel ||
+		y >= inputMat.size().height - filterLevel
+		) {
+		return 255;
+	}
+
+	vector<int> pixels(0);
+	for (int arX = -filterLevel; arX <= filterLevel; arX++)
+	{
+		for (int arY = -filterLevel; arY <= filterLevel; arY++)
+		{
+			int index = (y + arY) * inputMat.size().width + (x + arX);
+			pixels.push_back(inputMat.data[index]);
+		}
+	}
+	sort(pixels.begin(), pixels.end());
+	int numPixel = pixels.size();
+	int midianIndex = numPixel / 2;
+
+	return inputMat.data[midianIndex];
 }

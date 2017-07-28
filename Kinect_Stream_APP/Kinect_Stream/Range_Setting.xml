@@ -2,11 +2,11 @@
 <sensing_range>
   <range_width>2.8</range_width>
   <range_height>
-    <min>0.1</min>
-    <max>3.0</max>
+    <min>0.2</min>
+    <max>2.0</max>
   </range_height>
   <range_depth>
-    <min>0.0</min>
+    <min>0.1</min>
     <max>3.0</max>
   </range_depth>
 </sensing_range>

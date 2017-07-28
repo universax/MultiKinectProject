@@ -25,8 +25,8 @@ void PCLManager::update(pcl::PointCloud<PointType>::Ptr inputPoints)
 	voxelGridFilter(0.015f, zeroPointCloud);
 
 	//ÉmÉCÉYèúãé
-	nanRemovalFilter(zeroPointCloud);
-	//statisticalOutlierFilter(zeroPointCloud);
+	//nanRemovalFilter(zeroPointCloud);
+	statisticalOutlierFilter(zeroPointCloud);
 
 	//ï€ë∂
 	*inputPoints = *zeroPointCloud;

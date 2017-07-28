@@ -52,7 +52,8 @@ private:
 
 	//OCV
 	Mat createMatAndOrganizedPointCloud(pcl::PointCloud<PointType>::Ptr inputCloud, Size imageSize, vector<int> &indicesOnImage, vector<int> &indicesOnPointCloud);
-	bool midianFilter(int bufIndex, Mat &inputMat, int filterLevel);
+	bool midianNoiseFilter(int bufIndex, Mat &inputMat, int filterLevel);
+	int midianFilter(int bufIndex, Mat &inputMat, int filterLevel);
 
 	//Util
 	boost::posix_time::ptime workBeginTime;

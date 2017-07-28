@@ -18,9 +18,9 @@ private:
 	int maxFeatureCount = 600;
 
 	//計算対象の現在のフレーム
-	Mat curMat;
+	UMat curMat;
 	//フロー算出する際の一つ手前のフレーム
-	Mat prevMat;
+	UMat prevMat;
 
 	//算出結果を入れるやつ
 	vector<Point2f> points[2];

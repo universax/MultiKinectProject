@@ -56,7 +56,7 @@ void OpticalFlow::update(UMat &inputMat) {
 	swap(curMat, prevMat);
 
 	counter += 1;
-	if (counter > 33)
+	if (counter > 20)
 	{
 		//for (int i = 0; i < 2; i++)
 		//{
@@ -86,8 +86,6 @@ void OpticalFlow::draw(UMat &drawMat) {
 				circle(drawMat, points[0][i], 1, Scalar(0, 0, 255));
 				//circle(drawMat, points[1][i], 1, Scalar(0, 255, 0));
 			}
-			
-			
 		}
 	}
 	imshow("Kinect", drawMat);
