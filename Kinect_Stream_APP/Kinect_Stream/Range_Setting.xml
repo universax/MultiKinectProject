@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <sensing_range>
-  <range_width>2.8</range_width>
+  <range_width>1.0</range_width>
   <range_height>
-    <min>0.2</min>
-    <max>2.0</max>
+    <min>0</min>
+    <max>2</max>
   </range_height>
   <range_depth>
     <min>0.1</min>
-    <max>3.0</max>
+    <max>3</max>
   </range_depth>
 </sensing_range>

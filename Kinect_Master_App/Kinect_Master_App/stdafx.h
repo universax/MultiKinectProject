@@ -7,16 +7,16 @@
 
 #include "targetver.h"
 //C++
-#define _USE_MATH_DEFINES // for C++
-#include <stdio.h>
-#include <atlbase.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <cmath>
-#include <ctime>
+//#define _USE_MATH_DEFINES // for C++
+//#include <stdio.h>
+//#include <atlbase.h>
+//#include <iostream>
+//#include <fstream>
+//#include <sstream>
+//#include <string>
+//#include <vector>
+//#include <cmath>
+//#include <ctime>
 #include <chrono>
 
 #include <boost/array.hpp>

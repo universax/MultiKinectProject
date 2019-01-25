@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <kinect_posture>
-  <x>1.7700000000000011</x>
-  <y>2.5699999999999892</y>
-  <z>0.14999999999999997</z>
-  <pitch>29.500000000000149</pitch>
-  <yaw>-56.600000000000534</yaw>
-  <roll>6.8999999999999915</roll>
+  <x>0</x>
+  <y>1.0</y>
+  <z>0</z>
+  <pitch>0</pitch>
+  <yaw>0</yaw>
+  <roll>0</roll>
 </kinect_posture>

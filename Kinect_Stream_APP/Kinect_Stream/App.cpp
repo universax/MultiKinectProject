@@ -53,10 +53,6 @@ void App::run() {
 			pcl::PointCloud<PointType>::Ptr kinectRawCloud = convertDepthToPointCloud(depthBuf);
 			pclManager.update(kinectRawCloud);
 
-			if (kinectRawCloud->size() < 100)
-			{
-				continue;
-			}
 
 			//送信
 			pcl::PointCloud<PointType>::Ptr sendPCLPtr(new pcl::PointCloud<PointType>());
@@ -75,25 +71,15 @@ void App::run() {
 			//ポイントクラウド上のインデックス
 			vector<int> indicesOnPointCloud;
 			//画像を生成
-			Size depthImageSize(300, 200);
+			Size depthImageSize(200, 200);
 			Mat depthMat = createMatAndOrganizedPointCloud(kinectRawCloud, depthImageSize, indicesOnImage, indicesOnPointCloud);
-			Mat culcFlowMat;
-			//depthMat.copyTo(culcFlowMat);
-			//for (int i = 0; i < depthMat.size().width * depthMat.size().height; i++)
-			//{
-			//	culcFlowMat.data[i] = midianFilter(i, depthMat, 1);
-			//}
-			//imshow("MFilter", culcFlowMat);
+
 			//Flowの計算
 			UMat flowMat;
 			depthMat.copyTo(flowMat);
 
 
-			//---------- Flow計算（フレームレート早すぎると落ちるので適宜スリープ）
-			//if (workDuration.total_milliseconds() < 17)
-			//{
-			//	Sleep(17 - workDuration.total_milliseconds());
-			//}
+			//---------- Flow計算
 			flow.update(flowMat);
 			UMat drawMat;
 			cvtColor(flowMat, drawMat, CV_GRAY2BGR);
@@ -118,8 +104,8 @@ void App::run() {
 				{
 					Point2f fp = flowEndPoints[i];
 					Point2f f = forces[i];
+
 					//そもそも無効なやつ
-					int targetIndex = depthImageSize.width * fp.y + fp.x;
 					if (fp.x < 0 || fp.y < 0)
 					{
 						continue;
@@ -133,6 +119,7 @@ void App::run() {
 					}
 
 					//このインデックス付近で、一番有効そうな値を探す
+					int targetIndex = depthImageSize.width * fp.y + fp.x;
 					for (int j = 0; j < indicesOnImage.size(); j++)
 					{
 						int indexOnImage = indicesOnImage[j];
@@ -345,44 +332,6 @@ Mat App::createMatAndOrganizedPointCloud(pcl::PointCloud<PointType>::Ptr inputCl
 		indicesOnPointCloud.push_back(i);
 	}
 
-
-
-
-
-
-	////まずDepthSpaceにPointCloudを変換して、
-	//vector<DepthSpacePoint> depthData = convertPointCloudToDepthSpace(inputCloud);
-
-	////忘れずリセットして
-	//indicesOnImage.clear();
-	//indicesOnPointCloud.clear();
-
-	//Mat outMat(imageSize.height, imageSize.width, CV_8UC1);
-	//rectangle(outMat, Rect(0, 0, imageSize.width, imageSize.height), Scalar(255, 255, 255), -1);
-
-	//for (int i = 0; i < depthData.size(); i += 1)
-	//{
-	//	int x = imageSize.width / 2 + (depthData[i].X / (rangeWidth * 1000)) * imageSize.width;
-	//	//int x = (depthData[i].X + 200) * 0.3;
-	//	if (x > imageSize.width - 1 || x < 0)
-	//	{
-	//		continue;
-	//	}
-	//	int y = imageSize.height / 2 + (depthData[i].Y / (rangeHeight * 1000)) * imageSize.height;
-	//	//int y = (depthData[i].Y + 350) * 0.3;
-	//	if (y > imageSize.height - 1 || y < 0)
-	//	{
-	//		continue;
-	//	}
-	//	int index = y * outMat.size().width + x;
-	//	outMat.data[index] = 0;
-	//
-	//	//画像上のインデックスと、ポイントクラウド上のインデックスを保存しとく
-	//	indicesOnImage.push_back(index);
-	//	indicesOnPointCloud.push_back(i);
-	//}
-
-	//imshow("test", outMat);
 	return outMat;
 }
 

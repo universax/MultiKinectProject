@@ -21,11 +21,11 @@ void PCLManager::update(pcl::PointCloud<PointType>::Ptr inputPoints)
 	passThroughFilter(zeroPointCloud, "y", minHeight, maxHeight);
 	passThroughFilter(zeroPointCloud, "z", minDepth, maxDepth);
 
-	//間引く
-	voxelGridFilter(0.015f, zeroPointCloud);
+	////間引く
+	//voxelGridFilter(0.015f, zeroPointCloud);
 
-	//ノイズ除去
-	//nanRemovalFilter(zeroPointCloud);
+	////ノイズ除去
+	////nanRemovalFilter(zeroPointCloud);
 	statisticalOutlierFilter(zeroPointCloud);
 
 	//保存

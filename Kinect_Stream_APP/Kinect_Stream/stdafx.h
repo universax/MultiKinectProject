@@ -6,6 +6,13 @@
 #pragma once
 
 #include "targetver.h"
+//Boost
+#include <boost/array.hpp>
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 //C++
 #define _USE_MATH_DEFINES // for C++
@@ -26,16 +33,9 @@
 #include "opencv2\core\ocl.hpp"
 #include "opencv2\objdetect.hpp"
 
-//Kinect
-#include <Kinect.h>
 
-//Boost
-#include <boost/array.hpp>
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/thread.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/property_tree/xml_parser.hpp>
+
+
 
 //PCL
 #include <pcl/common/transforms.h>
@@ -51,6 +51,9 @@
 
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
+
+//Kinect
+#include <Kinect.h>
 
 //Common
 #include "typeDef.h"
